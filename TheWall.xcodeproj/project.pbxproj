@@ -391,11 +391,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0A0000000000000000000042 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0A0000000000000000000030 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
 		0A0000000000000000000032 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0A0000000000000000000030 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -415,6 +410,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0A0000000000000000000031 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignIn;
+		};
+		0A0000000000000000000042 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0A0000000000000000000030 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
