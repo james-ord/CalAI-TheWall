@@ -2,11 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Merged with the generated Info.plist. Lives outside TheWall/ so it isn't copied as a resource. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<!-- Lets Google sign-in return to the app. The value is REVERSED_CLIENT_ID from GoogleService-Info.plist. -->
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.googleusercontent.apps.650875599735-30jmolifbecgcvejlvevpasi84varhb7</string>
