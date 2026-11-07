@@ -11,6 +11,10 @@ protocol PostRepository: Sendable {
     /// callers must not make the UI wait on it.
     /// - Throws: `PostError` if the write fails.
     func create(_ post: NewPost) async throws
+
+    /// Deletes everything stored locally, so the next account starts with nothing from this
+    /// one. Call it after stopping all listeners. This also discards posts still waiting to send.
+    func clearLocalData() async throws
 }
 
 enum PostError: Error, Equatable {

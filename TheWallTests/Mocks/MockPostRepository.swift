@@ -3,6 +3,7 @@
 /// A `PostRepository` with no behaviour of its own: each test supplies what the backend does.
 actor MockPostRepository: PostRepository {
     typealias PostsHandler = @Sendable (_ author: String?, _ limit: Int) -> any AsyncSequence<PostSnapshot, any Error>
+    typealias ClearLocalDataHandler = @Sendable () async throws -> Void
 
     enum CreateBehavior: Sendable {
         case succeed
@@ -12,13 +13,19 @@ actor MockPostRepository: PostRepository {
     }
 
     private let postsHandler: PostsHandler
+    private let clearLocalDataHandler: ClearLocalDataHandler
     private var createBehavior: CreateBehavior
     private var suspendedCreates: [String: CheckedContinuation<Void, any Error>] = [:]
     private(set) var createdPosts: [NewPost] = []
 
-    init(createBehavior: CreateBehavior, posts: @escaping PostsHandler) {
+    init(
+        createBehavior: CreateBehavior,
+        posts: @escaping PostsHandler,
+        clearLocalData: @escaping ClearLocalDataHandler
+    ) {
         self.createBehavior = createBehavior
         self.postsHandler = posts
+        self.clearLocalDataHandler = clearLocalData
     }
 
     nonisolated func posts(author: String?, limit: Int) -> any AsyncSequence<PostSnapshot, any Error> {
@@ -37,6 +44,10 @@ actor MockPostRepository: PostRepository {
                 suspendedCreates[post.id] = continuation
             }
         }
+    }
+
+    func clearLocalData() async throws {
+        try await clearLocalDataHandler()
     }
 
     func setCreateBehavior(_ behavior: CreateBehavior) {
