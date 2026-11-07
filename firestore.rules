@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /posts/{postId} {
+      // Only signed-in users can read posts.
+      allow read: if request.auth != null;
+
+      // People can only post as themselves.
+      allow create: if isValidNewPost(request.resource.data);
+
+      // Nobody can change or delete a post, including its author. The app has no edit or
+      // delete feature, so the simplest correct rule is to deny both.
+      allow update, delete: if false;
+    }
+  }
+
+  function isValidNewPost(post) {
+    return request.auth != null
+      && post.keys().hasOnly(['authorId', 'authorName', 'authorPhotoURL', 'text', 'createdAt'])
+      && post.keys().hasAll(['authorId', 'authorName', 'authorPhotoURL', 'text', 'createdAt'])
+      // Identity, name and photo must match the signed-in Google account.
+      && post.authorId == request.auth.uid
+      && post.authorName == request.auth.token.get('name', null)
+      && post.authorPhotoURL == request.auth.token.get('picture', null)
+      // Rules can't read Remote Config, so this is a fixed ceiling above the app's limit.
+      && post.text is string
+      && post.text.trim().size() > 0
+      && post.text.size() <= 1000
+      // The server's clock, so nobody can backdate or future-date a post.
+      && post.createdAt == request.time;
+  }
+}
