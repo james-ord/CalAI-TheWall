@@ -12,6 +12,7 @@
 		0A0000000000000000000038 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 0A0000000000000000000034 /* FirebaseRemoteConfig */; };
 		0A0000000000000000000039 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 0A0000000000000000000035 /* GoogleSignIn */; };
 		0A0000000000000000000043 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0A0000000000000000000042 /* FirebaseCore */; };
+		1A936B57309FBB370073AAC9 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1A936B55309FBB370073AAC9 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +28,7 @@
 /* Begin PBXFileReference section */
 		0A0000000000000000000011 /* TheWall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheWall.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A0000000000000000000021 /* TheWallTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheWallTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A936B55309FBB370073AAC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -70,6 +72,7 @@
 			children = (
 				0A0000000000000000000012 /* TheWall */,
 				0A0000000000000000000022 /* TheWallTests */,
+				1A936B56309FBB370073AAC9 /* Support */,
 				0A0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -81,6 +84,14 @@
 				0A0000000000000000000021 /* TheWallTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1A936B56309FBB370073AAC9 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				1A936B55309FBB370073AAC9 /* Info.plist */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +193,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A936B57309FBB370073AAC9 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,6 +280,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -293,6 +306,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Support/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

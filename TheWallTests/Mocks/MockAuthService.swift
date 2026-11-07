@@ -1,3 +1,4 @@
+import UIKit
 @testable import TheWall
 
 /// An `AuthService` whose behaviour is set by each test. It supports one `authState` consumer,
@@ -5,7 +6,7 @@
 final class MockAuthService: AuthService {
     typealias SignOutHandler = @Sendable () throws -> Void
 
-    let authState: AsyncStream<AuthUser?>
+    private let stream: AsyncStream<AuthUser?>
     private let continuation: AsyncStream<AuthUser?>.Continuation
     private let signInResult: Result<AuthUser, AuthError>
     private let signOutHandler: SignOutHandler
@@ -15,13 +16,15 @@ final class MockAuthService: AuthService {
         signInResult: Result<AuthUser, AuthError>,
         signOut: @escaping SignOutHandler
     ) {
-        (authState, continuation) = AsyncStream.makeStream()
+        (stream, continuation) = AsyncStream.makeStream()
         self.signInResult = signInResult
         self.signOutHandler = signOut
         continuation.yield(initialUser)
     }
 
-    @MainActor func signIn() async throws {
+    var authState: any AsyncSequence<AuthUser?, Never> { stream }
+
+    @MainActor func signIn(presenting presenter: UIViewController) async throws {
         continuation.yield(try signInResult.get())
     }
 

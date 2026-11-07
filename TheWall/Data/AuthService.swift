@@ -1,11 +1,15 @@
+import UIKit
+
 /// Handles sign-in and reports who is signed in.
 protocol AuthService: Sendable {
     /// The current user on subscribing, then every change. `nil` means signed out.
-    var authState: AsyncStream<AuthUser?> { get }
+    var authState: any AsyncSequence<AuthUser?, Never> { get }
 
     /// Runs the interactive sign-in flow. The result arrives through `authState`.
+    /// - Parameter presenter: The calling screen's view controller, which the sign-in screen is
+    ///   presented from.
     /// - Throws: `AuthError`.
-    @MainActor func signIn() async throws
+    @MainActor func signIn(presenting presenter: UIViewController) async throws
 
     func signOut() throws
 }
