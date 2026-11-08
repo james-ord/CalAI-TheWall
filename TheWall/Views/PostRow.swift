@@ -4,31 +4,66 @@ struct PostRow: View {
     let item: FeedItem
     let onRetry: () -> Void
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @ScaledMetric(relativeTo: .subheadline) private var scaledAvatarSize = 36
+    /// Grows with the text, but stops before it takes the width the text needs.
+    private var avatarSize: CGFloat { min(scaledAvatarSize, 56) }
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             AsyncImage(url: item.post.authorPhotoURL) { image in
                 image.resizable().scaledToFill()
             } placeholder: {
-                Image(systemName: "person.crop.circle.fill")
+                Image(systemName: "person.crop.circle")
                     .resizable()
                     .foregroundStyle(.secondary)
             }
-            .frame(width: 36, height: 36)
+            .frame(width: avatarSize, height: avatarSize)
             .clipShape(Circle())
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack {
-                    Text(item.post.authorName).bold()
-                    Spacer()
-                    Text(item.post.createdAt, format: .dateTime.hour().minute())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
+                header
                 Text(item.post.text)
+                    .font(.subheadline)
                 deliveryStatus
             }
         }
         .opacity(item.deliveryStatus == .sending ? 0.6 : 1)
+        // VoiceOver reads the row as one item rather than stopping on each piece.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+        .accessibilityActions {
+            if item.deliveryStatus == .failed {
+                Button("Retry", action: onRetry)
+            }
+        }
+    }
+
+    /// Name and time share a line, except at accessibility text sizes, where there's no room
+    /// and the time would break mid-word.
+    @ViewBuilder
+    private var header: some View {
+        if dynamicTypeSize.isAccessibilitySize {
+            authorName
+            time
+        } else {
+            HStack {
+                authorName
+                Spacer()
+                time
+            }
+        }
+    }
+
+    private var authorName: some View {
+        Text(item.post.authorName)
+            .font(.subheadline.bold())
+    }
+
+    private var time: some View {
+        Text(item.post.createdAt, format: .dateTime.hour().minute())
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     @ViewBuilder
@@ -49,5 +84,19 @@ struct PostRow: View {
         case .delivered:
             EmptyView()
         }
+    }
+
+    private var accessibilityText: String {
+        var parts = [
+            item.post.authorName,
+            item.post.text,
+            item.post.createdAt.formatted(.dateTime.hour().minute()),
+        ]
+        switch item.deliveryStatus {
+        case .sending: parts.append("Sending")
+        case .failed: parts.append("Not sent")
+        case .delivered: break
+        }
+        return parts.joined(separator: ", ")
     }
 }

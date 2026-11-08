@@ -12,6 +12,7 @@ struct SignInView: View {
             VStack(spacing: 12) {
                 Button("Sign In With Google", action: signIn)
                     .buttonStyle(.borderedProminent)
+                    .buttonBorderShape(.capsule)
                     .disabled(isSigningIn)
                 if let errorMessage {
                     Text(errorMessage)

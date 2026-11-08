@@ -3,6 +3,8 @@ import SwiftUI
 struct WallView: View {
     @State private var viewModel: WallViewModel
     @State private var draft = ""
+    @State private var signOutFailed = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(viewModel: WallViewModel) {
         _viewModel = State(initialValue: viewModel)
@@ -30,14 +32,27 @@ struct WallView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Log Out") {
-                        Task { try? await viewModel.signOut() }
-                    }
+                    Button("Log Out", action: signOut)
                 }
+            }
+            .alert("Couldn't log out", isPresented: $signOutFailed) {
+                Button("Try Again", action: signOut)
+                Button("Cancel", role: .cancel) {}
             }
         }
         .task {
             viewModel.start()
+        }
+    }
+
+    private func signOut() {
+        Task {
+            do {
+                try await viewModel.signOut()
+            } catch {
+                print(error)
+                signOutFailed = true
+            }
         }
     }
 
@@ -66,12 +81,34 @@ struct WallView: View {
                 )
             }
         } else {
+            if viewModel.status == .failed {
+                refreshFailedBanner
+            }
             List(items) { item in
                 PostRow(item: item) {
                     viewModel.retry(postID: item.id)
                 }
+                .listRowSeparator(.hidden)
             }
             .listStyle(.plain)
+            .scrollDismissesKeyboard(.interactively)
+            // Rows slide in and out as posts arrive, fail or are retried, and fade as they
+            // finish sending. Without this, each snapshot would replace the list instantly.
+            .animation(reduceMotion ? nil : .default, value: items)
         }
+    }
+
+    /// Shown above posts already on screen when the listener fails, so they aren't mistaken for
+    /// live ones.
+    private var refreshFailedBanner: some View {
+        HStack {
+            Label("Couldn't refresh posts", systemImage: "exclamationmark.triangle")
+                .foregroundStyle(.secondary)
+            Spacer()
+            Button("Try Again") { viewModel.reload() }
+        }
+        .font(.footnote)
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 }
