@@ -21,7 +21,7 @@ Firebase is pinned to 12.x because 13.x needs Xcode 26.2 and this Macbook is res
 
 ## What I'd do with more time
 
-- **Paging and a "New posts" button:** the wall listens to the newest 100 posts, so older ones can't be reached. I'd keep one live listener for the newest page and fetch older pages with Firestore cursors (`start(afterDocument:)` and `limit`). While you're scrolled down, new posts would wait behind a "New posts" button. The fiddly part is the moving boundary between the live page and older pages.
+- **Older posts and "New posts" button:** The query for posts is currently limited to the 100 newest posts. Getting older posts would mean fetching further pages while keeping the listener for new incoming posts. The main tricks are prefetching ahead of reaching the bottom of the list (to keep scrolling smooth), and changing the listener to grow when new posts arrive. When a new post loads the oldest live post would drop from the list unless the listener is fixed to a post rather than a count. When scrolling, new posts would have to be held out of the list until the button is pressed to avoid shifting the list.
 - **Offline Status:** Display to the user when the app is offline/Firestore is unreachable
 - **Edge-cases:**
   - Warn before logging out with unsent posts since they'll be cleared with the cache
