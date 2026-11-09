@@ -4,7 +4,7 @@ A real-time social wall in SwiftUI and Firebase. Sign in with Google, post a mes
 
 ## Running the App
 
-Requries a minimum of Xcode 26.0 and iOS 18.0. Open `TheWall.xcodeproj`. The project uses two schemes: `TheWall` and `TheWallTests`. Swift packages will resolve on first build. Run `TheWall` to build the app to device or simulator.
+Requries a minimum of Xcode 26.0 and iOS 18.0. Open `TheWall.xcodeproj`. The project uses two schemes: `TheWall` and `TheWallTests`. Move the included `GoogleService-Info.plist` file into the `/TheWall` directory (same level as `/App`, `Data`, etc). Swift packages will resolve on first build. Run `TheWall` to build the app to device or simulator.
 
 ## Tests
 
