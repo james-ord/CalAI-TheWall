@@ -275,6 +275,49 @@ struct WallViewModelTests {
         #expect(harness.viewModel.status == .loaded)
     }
 
+    // MARK: - Deleting
+
+    @Test func deleteSendsThePostIDToTheRepository() async throws {
+        let harness = Harness(createBehavior: .succeed)
+        await harness.start()
+
+        try await harness.viewModel.delete(postID: "p1")
+
+        #expect(await harness.repository.deletedPostIDs == ["p1"])
+    }
+
+    @Test func rejectedDeleteIsThrownToTheCaller() async {
+        let harness = Harness(createBehavior: .succeed)
+        await harness.start()
+        await harness.repository.setDeleteError(.rejected)
+
+        await #expect(throws: PostError.rejected) {
+            try await harness.viewModel.delete(postID: "p1")
+        }
+    }
+
+    @Test func deletingAFailedPostRemovesItWithoutTheRepository() async throws {
+        let harness = Harness(createBehavior: .fail(.rejected))
+        await harness.start()
+        let id = await harness.postAndWait()
+        await waitUntil { harness.statuses == [.failed] }
+
+        try await harness.viewModel.delete(postID: id)
+
+        #expect(harness.ids.isEmpty)
+        #expect(await harness.repository.deletedPostIDs.isEmpty)
+    }
+
+    @Test func nothingIsDeletedAfterSignOut() async throws {
+        let harness = Harness(createBehavior: .succeed)
+        await harness.start()
+        try await harness.viewModel.signOut()
+
+        try await harness.viewModel.delete(postID: "p1")
+
+        #expect(await harness.repository.deletedPostIDs.isEmpty)
+    }
+
     // MARK: - Signing out
 
     @Test func signOutEndsTheListenerThenClearsLocalDataThenSignsOut() async throws {

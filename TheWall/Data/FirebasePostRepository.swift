@@ -40,6 +40,14 @@ struct FirebasePostRepository: PostRepository {
         }
     }
 
+    func delete(_ postID: String) async throws {
+        do {
+            try await collection.document(postID).delete()
+        } catch {
+            throw postError(for: error)
+        }
+    }
+
     /// Shuts Firestore down, then deletes its local cache and any unsent writes. Clearing only
     /// works on an instance that isn't running.
     func clearLocalData() async throws {

@@ -9,9 +9,13 @@ service cloud.firestore {
       // People can only post as themselves.
       allow create: if isValidNewPost(request.resource.data);
 
-      // Nobody can change or delete a post, including its author. The app has no edit or
-      // delete feature, so the simplest correct rule is to deny both.
-      allow update, delete: if false;
+      // Nobody can edit a post, including its author.
+      allow update: if false;
+
+      // Only the author can delete their post. `resource` is the stored post, so this checks
+      // the server's copy of the author, not anything the client sends.
+      allow delete: if request.auth != null
+        && resource.data.authorId == request.auth.uid;
     }
   }
 

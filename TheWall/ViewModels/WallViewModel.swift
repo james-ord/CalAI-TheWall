@@ -134,6 +134,19 @@ final class WallViewModel {
         send(NewPost(id: failed.id, author: user, text: failed.text), sentAt: failed.createdAt)
     }
 
+    /// Deletes one of the user's posts. Firestore removes it from the list straight away, and
+    /// puts it back if the server refuses. A failed post never reached the server, so it's only
+    /// removed here.
+    /// - Throws: `PostError` if the server refuses the delete.
+    func delete(postID: String) async throws {
+        guard !isSignedOut else { return }
+        if failedPosts.contains(where: { $0.id == postID }) {
+            failedPosts.removeAll { $0.id == postID }
+            return
+        }
+        try await repository.delete(postID)
+    }
+
     private func send(_ post: NewPost, sentAt: Date) {
         Task { [weak self, repository] in
             do {

@@ -17,6 +17,8 @@ actor MockPostRepository: PostRepository {
     private var createBehavior: CreateBehavior
     private var suspendedCreates: [String: CheckedContinuation<Void, any Error>] = [:]
     private(set) var createdPosts: [NewPost] = []
+    private var deleteError: PostError?
+    private(set) var deletedPostIDs: [String] = []
 
     init(
         createBehavior: CreateBehavior,
@@ -46,12 +48,22 @@ actor MockPostRepository: PostRepository {
         }
     }
 
+    func delete(_ postID: String) async throws {
+        deletedPostIDs.append(postID)
+        if let deleteError { throw deleteError }
+    }
+
     func clearLocalData() async throws {
         try await clearLocalDataHandler()
     }
 
     func setCreateBehavior(_ behavior: CreateBehavior) {
         createBehavior = behavior
+    }
+
+    /// Makes every later delete fail with `error`, as a server refusal would.
+    func setDeleteError(_ error: PostError?) {
+        deleteError = error
     }
 
     /// Answers a suspended `create`, as the server eventually would.

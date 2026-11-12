@@ -2,7 +2,10 @@ import SwiftUI
 
 struct PostRow: View {
     let item: FeedItem
+    /// Whether to offer Delete, which only the post's author can do.
+    let canDelete: Bool
     let onRetry: () -> Void
+    let onDelete: () -> Void
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @ScaledMetric(relativeTo: .subheadline) private var scaledAvatarSize = 36
@@ -28,6 +31,14 @@ struct PostRow: View {
                 deliveryStatus
             }
         }
+        .swipeActions(edge: .trailing) {
+            if canDelete {
+                // Red, but not the destructive role: that role makes the list remove the row
+                // straight away, before the user has confirmed.
+                Button("Delete", systemImage: "trash", action: onDelete)
+                    .tint(.red)
+            }
+        }
         .opacity(item.deliveryStatus == .sending ? 0.6 : 1)
         // VoiceOver reads the row as one item rather than stopping on each piece.
         .accessibilityElement(children: .ignore)
@@ -35,6 +46,9 @@ struct PostRow: View {
         .accessibilityActions {
             if item.deliveryStatus == .failed {
                 Button("Retry", action: onRetry)
+            }
+            if canDelete {
+                Button("Delete", action: onDelete)
             }
         }
     }

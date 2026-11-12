@@ -4,6 +4,9 @@ struct WallView: View {
     @State private var viewModel: WallViewModel
     @State private var draft = ""
     @State private var signOutFailed = false
+    @State private var deleteFailed = false
+    /// The post waiting for the user to confirm its deletion.
+    @State private var postIDToDelete: String?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     init(viewModel: WallViewModel) {
@@ -39,6 +42,18 @@ struct WallView: View {
                 Button("Try Again", action: signOut)
                 Button("Cancel", role: .cancel) {}
             }
+            .alert("Delete this post?", isPresented: isConfirmingDelete, presenting: postIDToDelete) { postID in
+                Button("Delete", role: .destructive) { delete(postID: postID) }
+                Button("Cancel", role: .cancel) {}
+            } message: { _ in
+                Text("This can't be undone.")
+            }
+            // The post is already back in the list by now, since Firestore restores it.
+            .alert("Couldn't delete post", isPresented: $deleteFailed) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Please try again.")
+            }
         }
         .task {
             viewModel.start()
@@ -54,6 +69,24 @@ struct WallView: View {
                 signOutFailed = true
             }
         }
+    }
+
+    /// Runs here rather than in the row: the row disappears as soon as the delete starts, so
+    /// it can't be the one to show a failure.
+    private func delete(postID: String) {
+        Task {
+            do {
+                try await viewModel.delete(postID: postID)
+            } catch {
+                print(error)
+                deleteFailed = true
+            }
+        }
+    }
+    /// We use this rather than an `isConfirmingDelete` state var to avoid having to track
+    /// that AND the `postIDtoDelete` value
+    private var isConfirmingDelete: Binding<Bool> {
+        Binding(get: { postIDToDelete != nil }, set: { if !$0 { postIDToDelete = nil } })
     }
 
     private var filterBinding: Binding<PostFilter> {
@@ -85,8 +118,10 @@ struct WallView: View {
                 refreshFailedBanner
             }
             List(items) { item in
-                PostRow(item: item) {
+                PostRow(item: item, canDelete: item.post.authorID == viewModel.user.id) {
                     viewModel.retry(postID: item.id)
+                } onDelete: {
+                    postIDToDelete = item.id
                 }
                 .listRowSeparator(.hidden)
             }

@@ -12,6 +12,14 @@ protocol PostRepository: Sendable {
     /// - Throws: `PostError` if the write fails.
     func create(_ post: NewPost) async throws
 
+    /// Deletes a post by its ID. The security rules only let its author delete it.
+    ///
+    /// Like `create`, this stays suspended while offline and only returns once the server has
+    /// answered, so callers must not make the UI wait on it.
+    /// - Throws: `PostError.rejected` if the server refuses, for example because the signed-in
+    ///   user isn't the author.
+    func delete(_ postID: String) async throws
+
     /// Deletes everything stored locally, so the next account starts with nothing from this
     /// one. Call it after stopping all listeners. This also discards posts still waiting to send.
     func clearLocalData() async throws
